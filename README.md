@@ -1,5 +1,5 @@
 # Linux LPE Auto-Exploit Toolkit 2026 (xpl2026)
-                                                    VENI | VIDI | VICI
+                                                  VENI | VIDI | VICI
 
 **Version:** 1.0-universal  
 **Organization:** BOB MARLEY LABS  
