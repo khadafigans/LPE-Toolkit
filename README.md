@@ -1,7 +1,9 @@
 # Linux LPE Auto-Exploit Toolkit 2026 (xpl2026)
+                                                    VENI | VIDI | VICI
 
 **Version:** 1.0-universal  
 **Organization:** BOB MARLEY LABS  
+**Note : The reason i put this exploit into github is because its Free, Hosting is expensive and my wallet can't handle it anymore**
 
 ---
 
@@ -855,9 +857,12 @@ sysctl -w kernel.unprivileged_bpf_disabled=1
 
 ---
 
-## Legal Notice
+##  Legal Notice
 
-### Authorized Use Only
+For authorized penetration testing, bug bounty programs, and educational purposes only. Unauthorized access to computer systems is illegal under:
+- Computer Fraud and Abuse Act (CFAA) - USA
+- Computer Misuse Act 1990 - UK
+- EU Cybersecurity Act
 
 This toolkit is provided for:
 - **Authorized penetration testing**
@@ -875,22 +880,8 @@ This toolkit is provided for:
 
 ### Disclaimer
 
-```
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-### Responsible Disclosure
-
-- Always follow responsible disclosure practices
-- Report vulnerabilities to vendors before public disclosure
-- Allow reasonable time for patching (typically 90 days)
-- Respect coordinated disclosure timelines
+**USE AT YOUR OWN RISK.** Author assumes NO LIABILITY for misuse.
+By using this tool, you confirm you have explicit authorization to test target systems.
 
 ---
 
@@ -931,14 +922,9 @@ EOF
 # Direct execution
 ./dirtypipe-static                 # Run exploit directly
 ```
-
 ---
-
-**Last Updated:** July 3, 2026  
-**Toolkit Version:** 2.0-universal  
-**Documentation Version:** 1.0
-
----
-
-**BOB MARLEY LABS**  
-*Advanced Security Research & Development*
+**Buy me a Coffee:**
+```
+₿ BTC: 17sbbeTzDMP4aMELVbLW78Rcsj4CDRBiZh
+```
+© 2026 khadafigans
