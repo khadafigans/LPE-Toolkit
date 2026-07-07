@@ -3,7 +3,7 @@
 
 **Version:** 2.3-universal  
 **Organization:** BOB MARLEY LABS  
-**Note : The reason i put this exploit into github is because its Free, Hosting is expensive and my wallet can't handle it anymore**
+**Note : The reason i put this exploit into github is because its Free, Hosting is expensive and my wallet can't handle it anymore, Also the Directory Source-Code is the Original and tweaked Source code of each LPE and it might not be complete / good / great / real, All the source code contained in the Directory might be False-Positive. Use the xpl2026.tgz for Auto-root**
 
 ---
 
