@@ -1,7 +1,7 @@
 # Linux LPE Auto-Exploit Toolkit 2026 (xpl2026)
                                                   VENI | VIDI | VICI
 
-**Version:** 1.0-universal  
+**Version:** 2.3-universal  
 **Organization:** BOB MARLEY LABS  
 **Note : The reason i put this exploit into github is because its Free, Hosting is expensive and my wallet can't handle it anymore**
 
@@ -26,11 +26,11 @@
 
 ## Overview
 
-The **xpl2026** toolkit is a comprehensive collection of 19 Linux Local Privilege Escalation (LPE) exploits, designed for penetration testing and security research. All exploits are compiled as **fully static binaries** for maximum portability and compatibility across different Linux distributions.
+The **xpl2026** toolkit is a comprehensive collection of 23 Linux Local Privilege Escalation (LPE) exploits, designed for penetration testing and security research. All exploits are compiled as **fully static binaries** for maximum portability and compatibility across different Linux distributions.
 
 ### Key Statistics
 
-- **Total Exploits:** 19
+- **Total Exploits:** 23
 - **Kernel Coverage:** 2.6.x - 7.1.x
 - **Binary Size:** 915KB (main toolkit)
 - **Architecture:** x86_64 (universal)
@@ -72,18 +72,22 @@ The **xpl2026** toolkit is a comprehensive collection of 19 Linux Local Privileg
 | 5 | **DirtyDecrypt** | CVE-2026-31635 | dirtydecrypt-static | 838KB | 5.x - 7.x |
 | 6 | **PinTheft** | Page cache exploit | pintheft-static | 834KB | 5.x - 7.x |
 | 7 | **CIFSwitch** | CVE-2026-46243 | cifswitch-static | 1.0MB | 5.x - 7.x |
-| 8 | **pidfd-race** | CVE-2026-46333 | pidfd-race-static | 923KB | 5.x - 7.x |
-| 9 | **PACKET_EDIT_MEME** | CVE-2026-46331 | packet-edit-meme-static | 755KB | 5.18 - 7.1 |
-| 10 | **IPv6 Frag Escape** | 6.12.x container escape | ipv6-frag-escape-static | 855KB | 6.12.0 - 6.12.x |
+| 8 | **PACKET_EDIT_MEME** | CVE-2026-46331 | packet-edit-meme-static | 755KB | 5.18 - 7.1 |
+| 9 | **IPv6 Frag Escape** | 6.12.x container escape | ipv6-frag-escape-static | 855KB | 6.12.0 - 6.12.x |
+| 10 | **pidfd-race** | CVE-2026-46333 | pidfd-race-static | 923KB | 5.x - 7.x |
 | 11 | **DirtyPipe** | CVE-2022-0847 | dirtypipe-static | 806KB | 5.8 - 5.16.11 |
-| 12 | **PwnKit** | CVE-2021-4034 | pwnkit-static | 828KB | All (pkexec) |
-| 13 | **OverlayFS** | CVE-2021-3493 | overlayfs-static | 826KB | 3.x - 5.11 |
-| 14 | **OvFS+FUSE** | CVE-2023-0386 | ovfs-fuse-static | 826KB | 5.11+ |
-| 15 | **Polkit D-Bus** | CVE-2021-3560 | polkit-dbus-static | 830KB | All (polkit) |
-| 16 | **Docker Socket** | Docker escape | docker-sock-static | 821KB | Container |
-| 17 | **netfilter OOB** | CVE-2021-22555 | netfilter-oob-static | N/A | 2.6.19 - 5.12 |
-| 18 | **nft UAF2** | CVE-2022-2586 | nft-uaf2-static | N/A | 5.x - 6.x |
-| 19 | **nft UAF** | CVE-2024-1086 | nft-uaf-static | N/A | 5.x - 6.x |
+| 12 | **Pack2TheRoot** | CVE-2026-41651 | pack2theroot-static | 789KB | All (PackageKit) |
+| 13 | **PwnKit** | CVE-2021-4034 | pwnkit-new-static | 778KB | All (pkexec) |
+| 14 | **OverlayFS** | CVE-2021-3493 | overlayfs-static | 826KB | 3.x - 5.11 |
+| 15 | **OvFS+FUSE** | CVE-2023-0386 | ovfs-fuse-static | 826KB | 5.11+ |
+| 16 | **Polkit D-Bus** | CVE-2021-3560 | polkit-dbus-static | 830KB | All (polkit) |
+| 17 | **Docker Socket** | Docker escape | docker-sock-static | 821KB | Container |
+| 18 | **netfilter OOB** | CVE-2021-22555 | netfilter-oob-static | 811KB | 2.6.32 - 5.11 |
+| 19 | **nft UAF2** | CVE-2022-2586 | nft-uaf2-static | 1.1MB | 5.x - 5.18 |
+| 20 | **nft UAF** | CVE-2024-1086 | nft-uaf-static | 980KB | 5.x - 6.x |
+| 21 | **DirtyClone** | CVE-2026-43503 | dirtyclone-static | 1023KB | 7.1-rc1 - 7.1-rc4 |
+| 22 | **Bad Epoll** | CVE-2026-46242 | bad-epoll-static | 1015KB | lts-6.12.67 (target-specific) |
+| 23 | **FUSE OOB** | CVE-2026-31694 | fuse-oob-static | 31KB | 6.15+ |
 
 ### Additional Files
 
@@ -461,19 +465,128 @@ ls -la /usr/bin/pkexec
 
 ---
 
-### 16-19. Netfilter Exploits
+### 16. Pack2TheRoot (CVE-2026-41651)
 
-**netfilter OOB (CVE-2021-22555):**
-- Kernel: 2.6.19 - 5.12
-- Method: Out-of-bounds write in netfilter
+**Type:** D-Bus PackageKit race  
+**Kernel:** All  
+**Method:** PackageKit InstallFiles race to root  
+**Requirements:** `dbus-send`, PackageKit service
 
-**nft UAF2 (CVE-2022-2586):**
-- Kernel: 5.x - 6.x
-- Method: Use-after-free in nftables
+```bash
+./pack2theroot-static
+```
 
-**nft UAF (CVE-2024-1086):**
-- Kernel: 5.x - 6.x
-- Method: Netfilter use-after-free
+**Details:**
+- Raw D-Bus client (no libdbus)
+- Races PackageKit SIMULATE/NONE flags
+- Triggers root-privileged postinst execution
+- Drops setuid-root bash at `/var/tmp/.suid_bash`
+
+---
+
+### 17. netfilter OOB (CVE-2021-22555)
+
+**Type:** Netfilter out-of-bounds write  
+**Kernel:** 2.6.19 - 5.12  
+**Method:** ip_tables corruption
+
+```bash
+./netfilter-oob-static
+```
+
+**Details:**
+- Classic kernel heap exploitation
+- Out-of-bounds write in netfilter subsystem
+- Reliable on older kernels
+
+---
+
+### 18. nft UAF2 (CVE-2022-2586)
+
+**Type:** Nftables use-after-free  
+**Kernel:** 5.x - 6.x  
+**Method:** nftables chain UAF
+
+```bash
+./nft-uaf2-static
+```
+
+**Details:**
+- Use-after-free in nftables subsystem
+- Targets r00t account creation
+- Requires user+net namespace
+
+---
+
+### 19. nft UAF (CVE-2024-1086)
+
+**Type:** Netfilter use-after-free  
+**Kernel:** 5.x - 6.x  
+**Method:** Notselwyn multi-file nftables
+
+```bash
+./nft-uaf-static
+```
+
+**Details:**
+- Multi-file nftables UAF exploit
+- Includes custom libnftnl/libmnl libraries
+- Highly reliable exploitation primitive
+
+---
+
+### 20. DirtyClone (CVE-2026-43503)
+
+**Type:** Page-cache corruption via ESP-in-UDP  
+**Kernel:** 7.1-rc1 - 7.1-rc4  
+**Method:** XFRM ESP TEE netfilter target
+
+```bash
+./dirtyclone-static
+```
+
+**Details:**
+- ESP-in-UDP TEE corrupts `/etc/passwd` page cache
+- Self-contained AES-128-CBC implementation
+- Creates passwordless root account
+- Targets very recent kernels (rc releases)
+
+---
+
+### 21. Bad Epoll (CVE-2026-46242)
+
+**Type:** epoll close-vs-close race UAF  
+**Kernel:** lts-6.12.67 (target-specific)  
+**Method:** epoll file descriptor race
+
+```bash
+./bad-epoll-static
+```
+
+**Details:**
+- **Target-specific offsets** - default for lts-6.12.67 (kernelCTF)
+- Customize `OFF_*` and `PIVOT*` defines for your kernel
+- Requires `/proc/kallsyms` access (kptr_restrict=0)
+- Two epoll pairs + timerfd IRQ widening
+- **Note:** Many distros backported the fix (commit `a6dc643c6931`)
+
+---
+
+### 22. FUSE OOB (CVE-2026-31694)
+
+**Type:** FUSE readdir cache overflow  
+**Kernel:** 6.15+  
+**Method:** fuse_add_dirent_to_cache() OOB write
+
+```bash
+./fuse-oob-static
+```
+
+**Details:**
+- Overflows 24 bytes into adjacent page-cache page
+- Makes `/etc/passwd` root passwordless
+- Requires `fusermount3`
+- Targets very recent kernels (6.15+)
 
 ---
 
