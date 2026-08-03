@@ -75,14 +75,14 @@ All three exploit the same bug class as Dirty COW and Dirty Pipe, corrupting pag
 
 | # | Exploit Name | CVE | Binary | Size | Kernel Range |
 |---|-------------|-----|--------|------|--------------|
-| 1 | **🆕 Dirty Pedit** | CVE-2026-46331 | dirty-pedit-static | 747KB | 5.18 - 7.1-rc7 |
+| 1 | **Dirty Pedit** | CVE-2026-46331 | dirty-pedit-static | 747KB | 5.18 - 7.1-rc7 |
 | 2 | **PACKET_EDIT_MEME** | CVE-2026-46331 | packet-edit-meme-static | 755KB | 5.18 - 7.1 |
 | 3 | **Fragnesia** | CVE-2026-46300 | fragnesia-static | 731KB | 5.x - 7.x |
 | 4 | **Fragnesia v2** | Enhanced version | fragnesia2-static | 827KB | 5.x - 7.x |
 | 5 | **CIFSwitch** | CVE-2026-46243 | cifswitch-static | 1.0MB | 5.x - 7.x |
 | 6 | **Bad Epoll** | CVE-2026-46242 | bad-epoll-static | 1015KB | lts-6.12.67 |
-| 7 | **🆕 skb_shift** | CVE-2026-43503 | skb-shift-static | 747KB | 3.9 - 7.1-rc5 |
-| 8 | **🆕 GRO Flag Loss** | CVE-2026-43503 | gro-flag-loss-static | 747KB | 3.9 - 7.1-rc5 |
+| 7 | **skb_shift** | CVE-2026-43503 | skb-shift-static | 747KB | 3.9 - 7.1-rc5 |
+| 8 | **GRO Flag Loss** | CVE-2026-43503 | gro-flag-loss-static | 747KB | 3.9 - 7.1-rc5 |
 | 9 | **DirtyClone** | CVE-2026-43503 | dirtyclone-static | 1023KB | 7.1-rc1 - 7.1-rc4 |
 | 10 | **DirtyFrag** | CVE-2026-43284 | dirtyfrag-static | 877KB | 5.x - 7.x |
 | 11 | **Pack2TheRoot** | CVE-2026-41651 | pack2theroot-static | 789KB | All (PackageKit) |
