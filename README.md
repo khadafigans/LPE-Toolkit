@@ -1,8 +1,9 @@
 # Linux LPE Auto-Exploit Toolkit 2026 (xpl2026)
                                                   VENI | VIDI | VICI
 
-**Version:** 2.3-universal  
-**Organization:** BOB MARLEY LABS  
+**Version:** 2.6-universal  
+**Last Updated:** August 4, 2026  
+**Organization:** BOB RESEARCH LABS  
 **Note : The reason i put this exploit into github is because its Free, Hosting is expensive and my wallet can't handle it anymore, Also the Directory Source-Code is the Original and tweaked Source code of each LPE and it might not be complete / good / great / real, All the source code contained in the Directory might be False-Positive. Use the xpl2026.tgz for Auto-root**
 
 ---
@@ -26,15 +27,24 @@
 
 ## Overview
 
-The **xpl2026** toolkit is a comprehensive collection of 23 Linux Local Privilege Escalation (LPE) exploits, designed for penetration testing and security research. All exploits are compiled as **fully static binaries** for maximum portability and compatibility across different Linux distributions.
+The **xpl2026** toolkit is a comprehensive collection of 26 Linux Local Privilege Escalation (LPE) exploits, designed for penetration testing and security research. All exploits are compiled as **fully static binaries** for maximum portability and compatibility across different Linux distributions.
 
 ### Key Statistics
 
-- **Total Exploits:** 23
+- **Total Exploits:** 26
 - **Kernel Coverage:** 2.6.x - 7.1.x
 - **Binary Size:** 915KB (main toolkit)
 - **Architecture:** x86_64 (universal)
 - **Compilation:** Fully static (no dependencies)
+
+### 🆕 Latest Addition (v2.6 - August 4, 2026)
+
+**Page Cache Corruption Exploits** - Research by Rajat Gupta (Qualcomm):
+- **Dirty Pedit** (CVE-2026-46331) - Sub-second root shell, no crypto needed
+- **skb_shift** (CVE-2026-43503) - 13 years of kernels affected (3.9-7.1-rc5)
+- **GRO Flag Loss** (CVE-2026-43503) - K8s container escape capable
+
+All three exploit the same bug class as Dirty COW and Dirty Pipe, corrupting page cache to gain root.
 
 ---
 
@@ -65,29 +75,32 @@ The **xpl2026** toolkit is a comprehensive collection of 23 Linux Local Privileg
 
 | # | Exploit Name | CVE | Binary | Size | Kernel Range |
 |---|-------------|-----|--------|------|--------------|
-| 1 | **CopyFail** | CVE-2026-31431 | copyfail-go-static | 2.1MB | 5.x - 7.x |
-| 2 | **DirtyFrag** | CVE-2026-43284 | dirtyfrag-static | 877KB | 5.x - 7.x |
+| 1 | **🆕 Dirty Pedit** | CVE-2026-46331 | dirty-pedit-static | 747KB | 5.18 - 7.1-rc7 |
+| 2 | **PACKET_EDIT_MEME** | CVE-2026-46331 | packet-edit-meme-static | 755KB | 5.18 - 7.1 |
 | 3 | **Fragnesia** | CVE-2026-46300 | fragnesia-static | 731KB | 5.x - 7.x |
 | 4 | **Fragnesia v2** | Enhanced version | fragnesia2-static | 827KB | 5.x - 7.x |
-| 5 | **DirtyDecrypt** | CVE-2026-31635 | dirtydecrypt-static | 838KB | 5.x - 7.x |
-| 6 | **PinTheft** | Page cache exploit | pintheft-static | 834KB | 5.x - 7.x |
-| 7 | **CIFSwitch** | CVE-2026-46243 | cifswitch-static | 1.0MB | 5.x - 7.x |
-| 8 | **PACKET_EDIT_MEME** | CVE-2026-46331 | packet-edit-meme-static | 755KB | 5.18 - 7.1 |
-| 9 | **IPv6 Frag Escape** | 6.12.x container escape | ipv6-frag-escape-static | 855KB | 6.12.0 - 6.12.x |
-| 10 | **pidfd-race** | CVE-2026-46333 | pidfd-race-static | 923KB | 5.x - 7.x |
-| 11 | **DirtyPipe** | CVE-2022-0847 | dirtypipe-static | 806KB | 5.8 - 5.16.11 |
-| 12 | **Pack2TheRoot** | CVE-2026-41651 | pack2theroot-static | 789KB | All (PackageKit) |
-| 13 | **PwnKit** | CVE-2021-4034 | pwnkit-new-static | 778KB | All (pkexec) |
-| 14 | **OverlayFS** | CVE-2021-3493 | overlayfs-static | 826KB | 3.x - 5.11 |
-| 15 | **OvFS+FUSE** | CVE-2023-0386 | ovfs-fuse-static | 826KB | 5.11+ |
-| 16 | **Polkit D-Bus** | CVE-2021-3560 | polkit-dbus-static | 830KB | All (polkit) |
-| 17 | **Docker Socket** | Docker escape | docker-sock-static | 821KB | Container |
-| 18 | **netfilter OOB** | CVE-2021-22555 | netfilter-oob-static | 811KB | 2.6.32 - 5.11 |
+| 5 | **CIFSwitch** | CVE-2026-46243 | cifswitch-static | 1.0MB | 5.x - 7.x |
+| 6 | **Bad Epoll** | CVE-2026-46242 | bad-epoll-static | 1015KB | lts-6.12.67 |
+| 7 | **🆕 skb_shift** | CVE-2026-43503 | skb-shift-static | 747KB | 3.9 - 7.1-rc5 |
+| 8 | **🆕 GRO Flag Loss** | CVE-2026-43503 | gro-flag-loss-static | 747KB | 3.9 - 7.1-rc5 |
+| 9 | **DirtyClone** | CVE-2026-43503 | dirtyclone-static | 1023KB | 7.1-rc1 - 7.1-rc4 |
+| 10 | **DirtyFrag** | CVE-2026-43284 | dirtyfrag-static | 877KB | 5.x - 7.x |
+| 11 | **Pack2TheRoot** | CVE-2026-41651 | pack2theroot-static | 789KB | All (PackageKit) |
+| 12 | **FUSE OOB** | CVE-2026-31694 | fuse-oob-static | 31KB | 6.15+ |
+| 13 | **DirtyDecrypt** | CVE-2026-31635 | dirtydecrypt-static | 838KB | 5.x - 7.x |
+| 14 | **CopyFail** | CVE-2026-31431 | copyfail-go-static | 2.1MB | 5.x - 7.x |
+| 15 | **IPv6 Frag Escape** | 6.12.x container escape | ipv6-frag-escape-static | 855KB | 6.12.0 - 6.12.x |
+| 16 | **PinTheft** | Page cache exploit | pintheft-static | 834KB | 5.x - 7.x |
+| 17 | **nft UAF** | CVE-2024-1086 | nft-uaf-static | 980KB | 5.x - 6.x |
+| 18 | **OvFS+FUSE** | CVE-2023-0386 | ovfs-fuse-static | 826KB | 5.11+ |
 | 19 | **nft UAF2** | CVE-2022-2586 | nft-uaf2-static | 1.1MB | 5.x - 5.18 |
-| 20 | **nft UAF** | CVE-2024-1086 | nft-uaf-static | 980KB | 5.x - 6.x |
-| 21 | **DirtyClone** | CVE-2026-43503 | dirtyclone-static | 1023KB | 7.1-rc1 - 7.1-rc4 |
-| 22 | **Bad Epoll** | CVE-2026-46242 | bad-epoll-static | 1015KB | lts-6.12.67 (target-specific) |
-| 23 | **FUSE OOB** | CVE-2026-31694 | fuse-oob-static | 31KB | 6.15+ |
+| 20 | **DirtyPipe** | CVE-2022-0847 | dirtypipe-static | 806KB | 5.8 - 5.16.11 |
+| 21 | **PwnKit** | CVE-2021-4034 | pwnkit-new-static | 778KB | All (pkexec) |
+| 22 | **Polkit D-Bus** | CVE-2021-3560 | polkit-dbus-static | 830KB | All (polkit) |
+| 23 | **OverlayFS** | CVE-2021-3493 | overlayfs-static | 826KB | 3.x - 5.11 |
+| 24 | **netfilter OOB** | CVE-2021-22555 | netfilter-oob-static | 811KB | 2.6.32 - 5.11 |
+| 25 | **pidfd-race** | CVE-2026-46333 | pidfd-race-static | 923KB | 5.x - 7.x |
+| 26 | **Docker Socket** | Docker escape | docker-sock-static | 821KB | Container |
 
 ### Additional Files
 
@@ -160,6 +173,111 @@ Your choice: 9    # Runs PACKET_EDIT_MEME
 ```bash
 Your choice: 99   # Shows detailed info about all exploits
 ```
+
+---
+
+## 🔥 Featured: Page Cache Corruption Exploits
+
+### The New Trinity (August 2026)
+
+Three powerful exploits from Rajat Gupta (Qualcomm) - same bug class as Dirty COW and Dirty Pipe:
+
+#### 1. Dirty Pedit (CVE-2026-46331) - The Speed Demon
+```
+Time to Root: < 1 second
+Mechanism: TC pedit COW gap (u32 wraparound)
+Kernel: 5.18 - 7.1-rc7 (May 2022 - August 2026)
+```
+
+**Why It's Different:**
+- **No crypto** - Direct writes via `skb_store_bits`
+- **Sub-second** - One packet = 12 bytes written = root in one shot
+- **Simpler** - Doesn't use ESP/XFRM at all
+
+**How It Works:**
+1. Creates GENEVE tunnel in user namespace
+2. Uses TC pedit to write directly to /etc/passwd page cache
+3. Bypasses COW via integer wraparound (u32 offset overflow)
+4. Injects `a::0:0::/:\n` (root user with no password)
+5. `su a` → instant root shell
+
+#### 2. skb_shift (CVE-2026-43503) - The Ancient Flaw
+```
+Time to Root: ~10 seconds
+Mechanism: TCP SACK flag loss during skb_shift()
+Kernel: 3.9 - 7.1-rc5 (2013 - 2026) ← 13 YEARS!
+```
+
+**The Discovery:**
+- Bug existed for **13 years** undetected
+- Affects every Linux distro from 2013-2026
+- Found using AI-assisted fuzzing
+
+**How It Works:**
+1. User namespace + loopback ESP-in-TCP
+2. Splice /usr/bin/su into TCP stream
+3. SACK processing triggers skb_shift()
+4. `SKBFL_SHARED_FRAG` flag lost → COW bypassed
+5. ESP decrypt writes in-place using IV lookup table
+6. Corrupts /usr/bin/su in page cache (192 bytes)
+7. Execute modified su → root shell
+
+#### 3. GRO Flag Loss (CVE-2026-43503) - The Container Escape
+```
+Time to Root: ~10 seconds
+Mechanism: GRO merge flag loss during coalesce
+Kernel: 3.9 - 7.1-rc5 (2013 - 2026)
+K8s Capable: YES (veth + GRO enabled by default)
+```
+
+**Kubernetes Impact:**
+- Works on **default K8s configs** (veth + GRO)
+- Container → Host escape
+- No special privileges needed
+
+**How It Works:**
+1. User namespace + veth pair
+2. Splice /usr/bin/su into ESP-in-UDP packets
+3. GRO (Generic Receive Offload) merges packets
+4. `SKBFL_SHARED_FRAG` flag lost during merge
+5. ESP decrypt overwrites page cache byte-by-byte
+6. Modified su executed → root on host
+
+### The Lineage - Page Cache Corruption
+
+```
+2016  Dirty COW         mmap + fork race
+2022  Dirty Pipe        Stale PIPE_BUF_FLAG_CAN_MERGE
+2026  Copy Fail         AF_ALG AEAD in-place on scatterlist
+2026  Dirty Frag        ESP skip_cow on splice'd frags
+2026  Fragnesia         skb_try_coalesce drops SHARED_FRAG
+2026  Dirty Pedit  ←    TC pedit COW gap (NEW!)
+2026  skb_shift    ←    TCP SACK drops SHARED_FRAG (NEW!)
+2026  GRO Flag Loss ←   GRO merge drops SHARED_FRAG (NEW!)
+```
+
+### Why These Matter
+
+**Universal Impact:**
+- **Dirty Pedit**: Fastest page-cache corruption exploit ever (< 1 sec)
+- **skb_shift/GRO**: Affected EVERY Linux installation for 13 years
+- **All three**: Work unprivileged (user namespaces only)
+
+**Key Properties:**
+
+| Property | Dirty Pedit | skb_shift | GRO Flag Loss |
+|----------|:-----------:|:---------:|:-------------:|
+| Crypto needed | ❌ No | ✅ Yes | ✅ Yes |
+| Time to root | < 1 second | ~10 seconds | ~10 seconds |
+| Kernel coverage | 4 years | **13 years** | **13 years** |
+| Container escape | ❌ No | ❌ No | ✅ Yes (K8s) |
+| Detection | Page-cache only (invisible to AIDE/Tripwire) | Same | Same |
+
+**Post-Exploitation:**
+- On-disk files **never touched**
+- File integrity tools see nothing
+- `echo 1 > /proc/sys/vm/drop_caches` to clean up
+- Reboot restores original files
 
 ---
 
@@ -1005,11 +1123,12 @@ By using this tool, you confirm you have explicit authorization to test target s
 | Your Kernel | Recommended Exploits |
 |-------------|---------------------|
 | 2.6.x - 3.x | netfilter OOB, OverlayFS |
+| 3.9 - 5.7 | **skb_shift**, **GRO Flag Loss** (13 years affected!) |
 | 4.x | OverlayFS, PwnKit, Polkit D-Bus |
 | 5.8 - 5.16 | **DirtyPipe** (highly reliable) |
-| 5.18 - 7.0 | **PACKET_EDIT_MEME**, CopyFail, DirtyFrag |
+| 5.18 - 7.0 | **Dirty Pedit** (< 1 sec!), PACKET_EDIT_MEME, CopyFail |
 | 6.12.x | **IPv6 Frag Escape** (RHEL/CentOS 10) |
-| 7.0 - 7.1-rc4 | CopyFail, Fragnesia |
+| 7.0 - 7.1-rc5 | **Dirty Pedit**, CopyFail, Fragnesia, skb_shift, GRO |
 
 ### Command Cheat Sheet
 
