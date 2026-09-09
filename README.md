@@ -1,8 +1,8 @@
 # Linux LPE Auto-Exploit Toolkit 2026 (xpl2026)
                                                   VENI | VIDI | VICI
 
-**Version:** 2.6-universal  
-**Last Updated:** August 4, 2026  
+**Version:** 2.7-universal  
+**Last Updated:** September 9, 2026  
 **Organization:** BOB RESEARCH LABS  
 **Note : The reason i put this exploit into github is because its Free, Hosting is expensive and my wallet can't handle it anymore, Also the Directory Source-Code is the Original and tweaked Source code of each LPE and it might not be complete / good / great / real, All the source code contained in the Directory might be False-Positive. Use the xpl2026.tgz for Auto-root**
 
@@ -27,17 +27,27 @@
 
 ## Overview
 
-The **xpl2026** toolkit is a comprehensive collection of 26 Linux Local Privilege Escalation (LPE) exploits, designed for penetration testing and security research. All exploits are compiled as **fully static binaries** for maximum portability and compatibility across different Linux distributions.
+The **xpl2026** toolkit is a comprehensive collection of 27 Linux Local Privilege Escalation (LPE) exploits, designed for penetration testing and security research. All exploits are compiled as **fully static binaries** for maximum portability and compatibility across different Linux distributions.
 
 ### Key Statistics
 
-- **Total Exploits:** 26
+- **Total Exploits:** 27
 - **Kernel Coverage:** 2.6.x - 7.1.x
 - **Binary Size:** 915KB (main toolkit)
 - **Architecture:** x86_64 (universal)
 - **Compilation:** Fully static (no dependencies)
 
-### 🆕 Latest Addition (v2.6 - August 4, 2026)
+### 🆕 Latest Addition (v2.7 - September 9, 2026)
+
+**ZcopyReaper** (CVE-2026-43502) - Fresh LPE from NebuSec:
+- **Discovered:** September 8, 2026 (1 day old!)
+- **Component:** RDS (Reliable Datagram Sockets) zerocopy send path
+- **Kernel Range:** 4.17 - 7.1-rc3 (8 years of kernels!)
+- **Requirements:** RDS module (more common than SCTP, ~30-40% availability)
+- **Privileges:** NO capabilities or user namespaces needed!
+- **Technique:** Invalid page free → modprobe_path overwrite → root shell
+
+### Previous Additions (v2.6 - August 4, 2026)
 
 **Page Cache Corruption Exploits** - Research by Rajat Gupta (Qualcomm):
 - **Dirty Pedit** (CVE-2026-46331) - Sub-second root shell, no crypto needed
@@ -75,29 +85,30 @@ All three exploit the same bug class as Dirty COW and Dirty Pipe, corrupting pag
 
 | # | Exploit Name | CVE | Binary | Size | Kernel Range |
 |---|-------------|-----|--------|------|--------------|
-| 1 | **Dirty Pedit** | CVE-2026-46331 | dirty-pedit-static | 747KB | 5.18 - 7.1-rc7 |
-| 2 | **PACKET_EDIT_MEME** | CVE-2026-46331 | packet-edit-meme-static | 755KB | 5.18 - 7.1 |
-| 3 | **Fragnesia** | CVE-2026-46300 | fragnesia-static | 731KB | 5.x - 7.x |
-| 4 | **Fragnesia v2** | Enhanced version | fragnesia2-static | 827KB | 5.x - 7.x |
-| 5 | **CIFSwitch** | CVE-2026-46243 | cifswitch-static | 1.0MB | 5.x - 7.x |
-| 6 | **Bad Epoll** | CVE-2026-46242 | bad-epoll-static | 1015KB | lts-6.12.67 |
-| 7 | **skb_shift** | CVE-2026-43503 | skb-shift-static | 747KB | 3.9 - 7.1-rc5 |
-| 8 | **GRO Flag Loss** | CVE-2026-43503 | gro-flag-loss-static | 747KB | 3.9 - 7.1-rc5 |
-| 9 | **DirtyClone** | CVE-2026-43503 | dirtyclone-static | 1023KB | 7.1-rc1 - 7.1-rc4 |
-| 10 | **DirtyFrag** | CVE-2026-43284 | dirtyfrag-static | 877KB | 5.x - 7.x |
-| 11 | **Pack2TheRoot** | CVE-2026-41651 | pack2theroot-static | 789KB | All (PackageKit) |
-| 12 | **FUSE OOB** | CVE-2026-31694 | fuse-oob-static | 31KB | 6.15+ |
-| 13 | **DirtyDecrypt** | CVE-2026-31635 | dirtydecrypt-static | 838KB | 5.x - 7.x |
-| 14 | **CopyFail** | CVE-2026-31431 | copyfail-go-static | 2.1MB | 5.x - 7.x |
-| 15 | **IPv6 Frag Escape** | 6.12.x container escape | ipv6-frag-escape-static | 855KB | 6.12.0 - 6.12.x |
-| 16 | **PinTheft** | Page cache exploit | pintheft-static | 834KB | 5.x - 7.x |
-| 17 | **nft UAF** | CVE-2024-1086 | nft-uaf-static | 980KB | 5.x - 6.x |
-| 18 | **OvFS+FUSE** | CVE-2023-0386 | ovfs-fuse-static | 826KB | 5.11+ |
-| 19 | **nft UAF2** | CVE-2022-2586 | nft-uaf2-static | 1.1MB | 5.x - 5.18 |
-| 20 | **DirtyPipe** | CVE-2022-0847 | dirtypipe-static | 806KB | 5.8 - 5.16.11 |
-| 21 | **PwnKit** | CVE-2021-4034 | pwnkit-new-static | 778KB | All (pkexec) |
-| 22 | **Polkit D-Bus** | CVE-2021-3560 | polkit-dbus-static | 830KB | All (polkit) |
-| 23 | **OverlayFS** | CVE-2021-3493 | overlayfs-static | 826KB | 3.x - 5.11 |
+| 1 | **🆕 ZcopyReaper** | CVE-2026-43502 | zcopyreaper-static | 827KB | 4.17 - 7.1-rc3 |
+| 2 | **Dirty Pedit** | CVE-2026-46331 | dirty-pedit-static | 747KB | 5.18 - 7.1-rc7 |
+| 3 | **PACKET_EDIT_MEME** | CVE-2026-46331 | packet-edit-meme-static | 755KB | 5.18 - 7.1 |
+| 4 | **Fragnesia** | CVE-2026-46300 | fragnesia-static | 731KB | 5.x - 7.x |
+| 5 | **Fragnesia v2** | Enhanced version | fragnesia2-static | 827KB | 5.x - 7.x |
+| 6 | **CIFSwitch** | CVE-2026-46243 | cifswitch-static | 1.0MB | 5.x - 7.x |
+| 7 | **Bad Epoll** | CVE-2026-46242 | bad-epoll-static | 1015KB | lts-6.12.67 |
+| 8 | **skb_shift** | CVE-2026-43503 | skb-shift-static | 747KB | 3.9 - 7.1-rc5 |
+| 9 | **GRO Flag Loss** | CVE-2026-43503 | gro-flag-loss-static | 747KB | 3.9 - 7.1-rc5 |
+| 10 | **DirtyClone** | CVE-2026-43503 | dirtyclone-static | 1023KB | 7.1-rc1 - 7.1-rc4 |
+| 11 | **DirtyFrag** | CVE-2026-43284 | dirtyfrag-static | 877KB | 5.x - 7.x |
+| 12 | **Pack2TheRoot** | CVE-2026-41651 | pack2theroot-static | 789KB | All (PackageKit) |
+| 13 | **FUSE OOB** | CVE-2026-31694 | fuse-oob-static | 31KB | 6.15+ |
+| 14 | **DirtyDecrypt** | CVE-2026-31635 | dirtydecrypt-static | 838KB | 5.x - 7.x |
+| 15 | **CopyFail** | CVE-2026-31431 | copyfail-go-static | 2.1MB | 5.x - 7.x |
+| 16 | **IPv6 Frag Escape** | 6.12.x container escape | ipv6-frag-escape-static | 855KB | 6.12.0 - 6.12.x |
+| 17 | **PinTheft** | Page cache exploit | pintheft-static | 834KB | 5.x - 7.x |
+| 18 | **nft UAF** | CVE-2024-1086 | nft-uaf-static | 980KB | 5.x - 6.x |
+| 19 | **OvFS+FUSE** | CVE-2023-0386 | ovfs-fuse-static | 826KB | 5.11+ |
+| 20 | **nft UAF2** | CVE-2022-2586 | nft-uaf2-static | 1.1MB | 5.x - 5.18 |
+| 21 | **DirtyPipe** | CVE-2022-0847 | dirtypipe-static | 806KB | 5.8 - 5.16.11 |
+| 22 | **PwnKit** | CVE-2021-4034 | pwnkit-new-static | 778KB | All (pkexec) |
+| 23 | **Polkit D-Bus** | CVE-2021-3560 | polkit-dbus-static | 830KB | All (polkit) |
+| 24 | **OverlayFS** | CVE-2021-3493 | overlayfs-static | 826KB | 3.x - 5.11 |
 | 24 | **netfilter OOB** | CVE-2021-22555 | netfilter-oob-static | 811KB | 2.6.32 - 5.11 |
 | 25 | **pidfd-race** | CVE-2026-46333 | pidfd-race-static | 923KB | 5.x - 7.x |
 | 26 | **Docker Socket** | Docker escape | docker-sock-static | 821KB | Container |
@@ -282,6 +293,103 @@ K8s Capable: YES (veth + GRO enabled by default)
 ---
 
 ## Exploit Details
+
+### Featured: ZcopyReaper (CVE-2026-43502) - RDS Zerocopy LPE
+
+**Type:** Invalid page free → modprobe_path overwrite  
+**Kernel:** 4.17 - 7.1-rc3 (February 2018 - September 2026) ← **8 YEARS!**  
+**Component:** RDS (Reliable Datagram Sockets) zerocopy send path  
+**Requirements:** RDS module loaded/available (30-40% of enterprise systems)  
+**Privileges:** NO capabilities, NO user namespaces needed!
+
+```bash
+./zcopyreaper-static
+# [+] root shell ready
+# /tmp/.cve43502-root -p
+```
+
+**Time to Root:** ~30 seconds (memory scan for modprobe_path)
+
+**How It Works:**
+1. **RDS/AIO Race**:
+   - Create AIO ring (io_setup) with 32768 events
+   - Setup RDS socket with zerocopy
+   - Race condition: sendmsg() vs io_destroy()
+   - If race won: io_destroy() frees AIO ring page **while RDS still owns it**
+
+2. **Invalid Page Free**:
+   - RDS zerocopy cleanup path incorrectly infers state from `rm->m_rs`
+   - Unqueued message cleaned up as if it owned normal payload pages
+   - Actual zerocopy ownership determined by `op_mmp_znotifier` (bug!)
+   - Result: Page freed to buddy allocator **while still in page table**
+
+3. **PTE Alias Creation**:
+   - Allocate 60 candidate PMD-sized ranges (2MB each)
+   - Collapse to THP (Transparent Huge Pages)
+   - Split them to deposit PTE pages into mm_struct
+   - Freed AIO ring page gets reused as **a PTE page table**
+   - Now we have **writable alias to a PTE** (physical read/write primitive!)
+
+4. **Physical Memory Scan**:
+   - Map physical RAM by writing PTEs to arbitrary physical addresses
+   - Scan for kernel's `modprobe_path` array (`/sbin/modprobe` string)
+   - Search range: 16MB-3GB + 4GB-5GB (typical QEMU/KVM layout)
+
+5. **modprobe_path Overwrite**:
+   - Once found, overwrite to `/tmp/.cve43502-mp`
+   - Trigger unknown binary execution → kernel calls modprobe
+   - Modprobe helper creates `/tmp/.cve43502-root` as setuid root
+   - Execute setuid shell → **root!**
+
+**Why It's Powerful:**
+
+| Feature | ZcopyReaper | Typical LPE |
+|---------|:-----------:|:-----------:|
+| **Capabilities** | ❌ None needed | ✅ Usually CAP_SYS_ADMIN |
+| **User namespace** | ❌ Not required | ✅ Usually required |
+| **Module dependency** | ⚠️ RDS (30-40%) | ❌ None or kernel-only |
+| **Kernel range** | ✅ **8 years** | ~2-4 years typical |
+| **Reliability** | ✅ High (physical memory scan) | Varies |
+| **Stealth** | ❌ Creates temp files | Varies |
+
+**RDS Module Availability:**
+- ✅ **High-Availability Clusters** (Pacemaker, Corosync)
+- ✅ **Oracle RAC** (Real Application Clusters)
+- ✅ **Database Servers** (clustering configs)
+- ✅ **Load-Balanced Systems**
+- ⚠️ **Cloud VMs**: Sometimes (depends on hosting provider)
+- ❌ **Desktop/Laptop**: Rarely loaded
+
+**Check if Target is Vulnerable:**
+```bash
+# Is RDS available?
+lsmod | grep rds
+# OR
+modprobe -n rds && echo "RDS available"
+
+# Kernel version
+uname -r
+# Vulnerable if: 4.17 ≤ version < 7.1-rc3
+```
+
+**Post-Exploitation Cleanup:**
+```bash
+# Remove artifacts (optional)
+rm /tmp/.cve43502-*
+```
+
+**Detection:**
+- Creates `/tmp/.cve43502-mp`, `/tmp/.cve43502-root`, `/tmp/.cve43502-unknown`
+- Modprobe calls logged in `/var/log/kern.log`
+- Physical memory writes detectable via kernel tracing
+
+**Defense:**
+- Patch to kernel ≥ 7.1-rc3
+- `rmmod rds rds_tcp` if RDS not needed
+- Restrict unprivileged socket creation (though NOT required for this exploit)
+- Monitor `/proc/sys/kernel/modprobe` changes
+
+---
 
 ### 1. CopyFail (CVE-2026-31431)
 
